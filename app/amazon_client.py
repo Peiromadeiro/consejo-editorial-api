@@ -2,10 +2,10 @@ from amazon_paapi import AmazonApi
 from app import config
 
 amazon = AmazonApi(
-    config.ACCESS_KEY,
-    config.SECRET_KEY,
-    config.ASSOCIATE_TAG,
-    config.REGION
+    access_key=config.ACCESS_KEY,
+    secret_key=config.SECRET_KEY,
+    partner_tag=config.ASSOCIATE_TAG,
+    country=config.REGION
 )
 
 def obtener_datos_producto(asin: str):
@@ -22,5 +22,5 @@ def obtener_datos_producto(asin: str):
             "descripcion": item.editorial_reviews[0].content if item.editorial_reviews else "",
         }
     except Exception as e:
-        print(f"Error al obtener el producto: {e}")
+        print(f"Error al obtener producto: {e}")
         return None
