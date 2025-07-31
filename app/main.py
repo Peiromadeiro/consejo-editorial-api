@@ -1,20 +1,21 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List
 from .utils import generar_consejo_editorial
+from .amazon_client import obtener_datos_producto
 
 app = FastAPI()
 
-class Producto(BaseModel):
-    titulo: str
-    precio: str
-    valoracion: float
-    n_opiniones: int
-    categoria: str
-    bullets: List[str]
-    descripcion: str
+class EntradaASIN(BaseModel):
+    asin: str
 
 @app.post("/consejo-editorial")
-def generar_consejo(producto: Producto):
-    consejo = generar_consejo_editorial(producto.dict())
-    return {"consejo": consejo}
+def generar_consejo_desde_asin(data: EntradaASIN):
+    producto = obtener_datos_producto(data.asin)
+    if not producto:
+        return {"error": "No se pudo obtener el producto desde Amazon"}
+    consejo = generar_consejo_editorial(producto)
+    return {
+        "asin": data.asin,
+        "producto": producto,
+        "consejo": consejo
+    }
