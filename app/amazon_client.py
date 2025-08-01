@@ -44,18 +44,30 @@ def safe_display_value(obj):
 def generar_descripcion_periodistica_gemini(datos_producto):
     prompt = (
         f"Eres un periodista especializado en análisis de productos electrónicos para afiliación.\n"
-        f"Escribe una descripción periodística, profesional y atractiva, de máximo 6 frases, "
-        f"sobre este producto de Amazon:\n\n"
+        f"Genera:\n"
+        f"1) Una descripción periodística, profesional y atractiva de máximo 6 frases,\n"
+        f"2) Una lista de puntos destacados sobre este producto de Amazon que resuman en bullets sus mejores características.\n\n"
         f"TÍTULO: {datos_producto.get('titulo', '')}\n"
         f"MARCA: {datos_producto.get('marca', '')}\n"
         f"CARACTERÍSTICAS PRINCIPALES: {', '.join(datos_producto.get('bullets', []))}\n"
         f"VALORACIÓN MEDIA: {datos_producto.get('valoracion', 'sin datos')}/5 basada en {datos_producto.get('n_opiniones', 'varias')} opiniones.\n"
+        f"Devuélveme primero la descripción separada por una línea vacía, luego la lista de los puntos destacados usando guiones (-) o viñetas.\n"
         f"El texto debe ser objetivo, claro y motivar a comprar a través del enlace afiliado."
     )
-    model = genai.GenerativeModel("gemini-1.5-flash")  # Cambia a otro modelo si quieres
+    model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(prompt)
-    return response.text.strip()
+    text = response.text.strip()
 
+    # Separar texto y lista si la respuesta sigue formato esperado
+    if "\n\n" in text:
+        descripcion, bullets_text = text.split("\n\n", 1)
+        # Extraer bullets: líneas que empiezan con guion o viñeta
+        bullets_ia = [line.strip("-• ").strip() for line in bullets_text.splitlines() if line.strip()]
+    else:
+        descripcion = text
+        bullets_ia = []
+
+    return descripcion, bullets_ia
 def obtener_datos_producto(asin: str):
     try:
         # Consulta PAAPI
