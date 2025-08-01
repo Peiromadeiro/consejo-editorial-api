@@ -14,6 +14,34 @@ amazon = AmazonApi(
     config.REGION
 )
 
+def safe_display_value(obj):
+    """
+    Funcion para obtener el atributo display_value de forma segura,
+    manejando tipos variables y evitando fallos por atributos ausentes.
+    """
+    if not obj:
+        return ""
+    # Si es objeto con atributo display_value
+    if hasattr(obj, "display_value"):
+        val = getattr(obj, "display_value")
+        if val is None:
+            return ""
+        return str(val)
+    # Si es lista o iterable de objetos con display_value
+    if isinstance(obj, (list, tuple)):
+        valores = []
+        for o in obj:
+            if hasattr(o, "display_value"):
+                val = getattr(o, "display_value")
+                if val:
+                    valores.append(str(val))
+            else:
+                # fallback en caso de otro tipo
+                valores.append(str(o))
+        return valores
+    # fallback: devuelve string del objeto
+    return str(obj)
+
 def generar_descripcion_periodistica_gemini(datos_producto):
     prompt = (
         f"Eres un periodista especializado en análisis de productos electrónicos para afiliación.\n"
@@ -37,8 +65,7 @@ def obtener_datos_producto(asin: str):
         if not item:
             print(f"[Amazon PAAPI] No se encontró el producto para el ASIN {asin}")
             return None
-        
-        # Protecciones para evitar errores de atributos faltantes
+
         item_info = item.item_info or {}
         product_info = getattr(item_info, "product_info", None) or {}
         offers = item.offers or {}
@@ -47,26 +74,26 @@ def obtener_datos_producto(asin: str):
         browse_node_info = item.browse_node_info or {}
         browse_nodes = browse_node_info.browse_nodes or []
 
-        # Construir datos base de Amazon
         datos = {
             "asin": asin,
-            "titulo": item_info.title.display_value if hasattr(item_info, "title") and item_info.title else "Sin título",
-            "marca": item_info.by_line_info.brand.display_value if hasattr(item_info, "by_line_info") and item_info.by_line_info and item_info.by_line_info.brand else "",
-            "fabricante": item_info.by_line_info.manufacturer.display_value if hasattr(item_info, "by_line_info") and item_info.by_line_info and item_info.by_line_info.manufacturer else "",
-            "precio": f"{offer_listing.price.amount} {offer_listing.price.currency}" if offer_listing and offer_listing.price else "Desconocido",
-            "imagen": item.images.primary.large.url if item.images and item.images.primary and item.images.primary.large else "",
-            "url_producto": item.detail_page_url if hasattr(item, "detail_page_url") else "",
-            "valoracion": customer_reviews.star_rating.display_value if hasattr(customer_reviews, "star_rating") and customer_reviews.star_rating else 0,
-            "n_opiniones": customer_reviews.total_reviews.display_value if hasattr(customer_reviews, "total_reviews") and customer_reviews.total_reviews else 0,
-            "categoria": browse_nodes[0].display_name if browse_nodes else "Sin categoría",
-            "bullets": item_info.features.display_values if hasattr(item_info, "features") and item_info.features else [],
-            "descripcion": product_info.product_description.display_value if hasattr(product_info, "product_description") and product_info.product_description else "",
-            "detalles_tecnicos": item_info.technical_info.display_values if hasattr(item_info, "technical_info") and item_info.technical_info else [],
-            "dimensiones": product_info.item_dimensions.display_value if hasattr(product_info, "item_dimensions") and product_info.item_dimensions else "",
-            "peso": product_info.item_weight.display_value if hasattr(product_info, "item_weight") and product_info.item_weight else "",
-            "fecha_lanzamiento": product_info.release_date.display_value if hasattr(product_info, "release_date") and product_info.release_date else "",
-            "ean": product_info.ean.display_value if hasattr(product_info, "ean") and product_info.ean else "",
-            "upc": product_info.upc.display_value if hasattr(product_info, "upc") and product_info.upc else "",
+            "titulo": safe_display_value(getattr(item_info, "title", None)) or "Sin título",
+            "marca": safe_display_value(getattr(getattr(item_info, "by_line_info", None), "brand", None)),
+            "fabricante": safe_display_value(getattr(getattr(item_info, "by_line_info", None), "manufacturer", None)),
+            "precio": (f"{offer_listing.price.amount} {offer_listing.price.currency}" 
+                       if offer_listing and offer_listing.price else "Desconocido"),
+            "imagen": (item.images.primary.large.url if item.images and item.images.primary and item.images.primary.large else ""),
+            "url_producto": safe_display_value(getattr(item, "detail_page_url", None)),
+            "valoracion": safe_display_value(getattr(customer_reviews, "star_rating", None)) or 0,
+            "n_opiniones": safe_display_value(getattr(customer_reviews, "total_reviews", None)) or 0,
+            "categoria": safe_display_value(browse_nodes[0]) if browse_nodes else "Sin categoría",
+            "bullets": safe_display_value(getattr(item_info, "features", None)) or [],
+            "descripcion": safe_display_value(getattr(product_info, "product_description", None)),
+            "detalles_tecnicos": safe_display_value(getattr(item_info, "technical_info", None)) or [],
+            "dimensiones": safe_display_value(getattr(product_info, "item_dimensions", None)),
+            "peso": safe_display_value(getattr(product_info, "item_weight", None)),
+            "fecha_lanzamiento": safe_display_value(getattr(product_info, "release_date", None)),
+            "ean": safe_display_value(getattr(product_info, "ean", None)),
+            "upc": safe_display_value(getattr(product_info, "upc", None)),
             "contras": [],  # Amazon no ofrece contras explícitos
         }
 
@@ -79,4 +106,3 @@ def obtener_datos_producto(asin: str):
     except Exception as e:
         print(f"[Amazon PAAPI ERROR] ASIN: {asin} - Excepción: {e}")
         return None
-
