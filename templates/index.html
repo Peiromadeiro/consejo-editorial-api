@@ -40,14 +40,20 @@
     <h1 class="text-center text-4xl font-bold mb-6 text-[#232F3E]">🛒 Buscador Amazon Afiliados</h1>
 
     <form id="asin-form" class="w-full max-w-xl mx-auto bg-white p-6 rounded shadow-md flex gap-4 items-center">
-      <input id="asin" name="asin" type="text" placeholder="Introduce el ASIN (por ejemplo B09XBM93XW)" required
-        class="flex-1 border px-4 py-2 mr-2 rounded-md focus:outline-none focus:ring focus:ring-[#232F3E]" />
-      <button type="submit"
-        class="btn-amarillo">Buscar</button>
+      <input
+        id="asin"
+        name="asin"
+        type="text"
+        placeholder="Introduce el ASIN (por ejemplo B09XBM93XW)"
+        required
+        class="flex-1 border px-4 py-2 mr-2 rounded-md focus:outline-none focus:ring focus:ring-[#232F3E]"
+      />
+      <button type="submit" class="btn-amarillo">Buscar</button>
     </form>
 
     <div id="resultado" class="hidden"></div>
   </div>
+
   <script>
     document.getElementById('asin-form').onsubmit = function(e) {
       e.preventDefault();
@@ -69,12 +75,24 @@
           return;
         }
         const data = await respuesta.json();
+
+        // Crear HTML con bullet points generados por IA (bullets_ia)
+        const bulletsIaHTML = (Array.isArray(data.bullets_ia) && data.bullets_ia.length)
+          ? `<ul class="list-disc pl-6 mb-4">` + data.bullets_ia.map(b => `<li>${b}</li>`).join('') + `</ul>`
+          : `<p>No hay puntos destacados disponibles.</p>`;
+
         resultadoDiv.innerHTML = `
           <div class="ficha-card flex-col md:flex-row">
             <img src="${data.imagen}" alt="${data.titulo}" class="w-56 h-56 object-contain rounded border mx-auto mb-6 md:mb-0 md:mr-6" style="background:#F7F7F7" />
             <div class="flex-1 flex flex-col">
               <h2 class="text-2xl font-bold mb-3">${data.titulo}</h2>
               <p class="text-base mb-4 italic">${data.descripcion_periodistica || ''}</p>
+
+              <div class="mb-4">
+                <h3 class="font-semibold mb-2 text-[#232F3E]">Puntos destacados del producto:</h3>
+                ${bulletsIaHTML}
+              </div>
+
               <div class="mb-3">
                 <div class="campo-fila"><span class="campo-label">Precio:</span> <span class="campo-valor">${data.precio || 'No disponible'}</span></div>
                 <div class="campo-fila"><span class="campo-label">Valoración:</span> <span class="campo-valor">${data.valoracion || '-'} / 5</span></div>
@@ -88,10 +106,12 @@
                 <div class="campo-fila"><span class="campo-label">EAN:</span> <span class="campo-valor">${data.ean || ''}</span></div>
                 <div class="campo-fila"><span class="campo-label">UPC:</span> <span class="campo-valor">${data.upc || ''}</span></div>
               </div>
+
               <div class="mb-4">
                 <div class="campo-label">Descripción oficial:</div>
                 <div class="campo-valor">${data.descripcion || ''}</div>
               </div>
+
               <div>
                 <a href="${data.url_producto || '#'}" target="_blank" class="btn-amarillo px-8 py-3 w-fit">Comprar en Amazon</a>
               </div>
@@ -106,5 +126,3 @@
   </script>
 </body>
 </html>
-
-
