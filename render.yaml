@@ -3,7 +3,7 @@ services:
     name: consejo-editorial-api
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app.main:app"
+    startCommand: "gunicorn app.main:app -k uvicorn.workers.UvicornWorker"
     plan: free
     region: frankfurt
     envVars:
