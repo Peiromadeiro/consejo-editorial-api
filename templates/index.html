@@ -76,7 +76,8 @@
           return;
         }
         const data = await respuesta.json();
-
+        console.log(data);
+        
         resultadoDiv.innerHTML = `
           <div class="ficha-card flex-col md:flex-row">
             <img src="${data.imagen}" alt="${data.titulo}" class="w-56 h-56 object-contain rounded border mx-auto mb-6 md:mb-0 md:mr-6" style="background:#F7F7F7" />
