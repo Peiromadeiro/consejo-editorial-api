@@ -3,9 +3,8 @@ from amazon_paapi import AmazonApi
 from app import config
 import google.generativeai as genai
 
-# Obtienes la API key desde la variable de entorno
+# Obtienes la API key desde la variable de entorno y configuras Gemini
 api_key = os.getenv("GOOGLE_API_KEY")
-# Configuras Gemini con la clave
 genai.configure(api_key=api_key)
 
 amazon = AmazonApi(
@@ -32,18 +31,21 @@ def generar_descripcion_periodistica_gemini(datos_producto):
 
 def obtener_datos_producto(asin: str):
     try:
-        # Tu código actual para consultar a Amazon PAAPI y parsear el resultado...
+        # Consulta PAAPI
         result = amazon.get_items(asin)
         item = result[0] if result else None
         if not item:
             print(f"[Amazon PAAPI] No se encontró el producto para el ASIN {asin}")
             return None
-        # ... resto del código
-        return datos
-    except Exception as e:
-        print(f"[Amazon PAAPI ERROR] ASIN: {asin} - Excepción: {e}")
-        return None
-
+        
+        # Protecciones para evitar errores de atributos faltantes
+        item_info = item.item_info or {}
+        product_info = getattr(item_info, "product_info", None) or {}
+        offers = item.offers or {}
+        offer_listing = offers.listings[0] if offers.listings else None
+        customer_reviews = item.customer_reviews or {}
+        browse_node_info = item.browse_node_info or {}
+        browse_nodes = browse_node_info.browse_nodes or []
 
         # Construir datos base de Amazon
         datos = {
@@ -75,6 +77,6 @@ def obtener_datos_producto(asin: str):
         return datos
 
     except Exception as e:
-        print(f"Error general: {e}")
+        print(f"[Amazon PAAPI ERROR] ASIN: {asin} - Excepción: {e}")
         return None
 
