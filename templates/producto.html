@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ producto.titulo }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* estilos similares a index.html para coherencia */
+  </style>
+</head>
+<body class="bg-gray-100 p-8 font-sans max-w-4xl mx-auto">
+  <h1 class="text-4xl font-bold mb-6">{{ producto.titulo }}</h1>
+
+  <div class="ficha-card flex-col md:flex-row bg-white p-6 rounded shadow-md">
+    <img src="{{ producto.imagen }}" alt="{{ producto.titulo }}" class="w-56 h-56 object-contain rounded border mb-6 md:mb-0 md:mr-6" style="background:#F7F7F7" />
+    <div>
+      <p class="mb-4">{{ producto.descripcion_periodistica }}</p>
+
+      <div class="mb-4 flex gap-6">
+        <div>
+          <h3 class="text-green-700 font-semibold mb-2">✔ Pros</h3>
+          <ul class="list-disc list-inside">
+            {% for pro in producto.bullets %}
+              <li>{{ pro }}</li>
+            {% else %}
+              <li>No hay pros disponibles</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-red-700 font-semibold mb-2">✗ Contras</h3>
+          <ul class="list-disc list-inside">
+            {% for contra in producto.contras %}
+              <li>{{ contra }}</li>
+            {% else %}
+              <li>No hay contras disponibles</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <span class="text-yellow-600 font-bold text-xl">⭐ {{ producto.valoracion }} / 5</span>
+        <span class="ml-2 text-gray-600">Basado en {{ producto.n_opiniones }} opiniones</span>
+      </div>
+
+      <a href="{{ producto.url_producto }}" target="_blank" class="btn-amarillo px-8 py-3 rounded bg-yellow-400 hover:bg-yellow-500">Comprar en Amazon</a>
+    </div>
+  </div>
+
+  <p class="mt-6"><a href="/" class="text-blue-600 hover:underline">&larr; Volver al buscador</a></p>
+</body>
+</html>
