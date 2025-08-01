@@ -70,12 +70,16 @@ def generar_descripcion_periodistica_gemini(datos_producto):
     return descripcion, bullets_ia
 def obtener_datos_producto(asin: str):
     try:
-        # Consulta PAAPI
-        result = amazon.get_items(asin)
-        item = result[0] if result else None
-        if not item:
-            print(f"[Amazon PAAPI] No se encontró el producto para el ASIN {asin}")
-            return None
+        # ... tu código actual para obtener 'datos' ...
+        
+        descripcion_ia, bullets_ia = generar_descripcion_periodistica_gemini(datos)
+        datos['descripcion_periodistica'] = descripcion_ia
+        datos['bullets_ia'] = bullets_ia  # NUEVO campo para la lista IA
+
+        return datos
+    except Exception as e:
+        print(f"[Amazon PAAPI ERROR] ASIN: {asin} - Excepción: {e}")
+        return None
 
         item_info = item.item_info or {}
         product_info = getattr(item_info, "product_info", None) or {}
