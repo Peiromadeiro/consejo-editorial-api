@@ -4,3 +4,4 @@ python-amazon-paapi
 gunicorn
 python-dotenv
 google-generativeai
+jinja2
