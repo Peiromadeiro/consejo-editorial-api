@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.templating import Jinja2Templates
 from app.amazon_client import obtener_datos_producto
 from dotenv import load_dotenv
 import os
@@ -7,14 +8,18 @@ import os
 load_dotenv()
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
-def home():
-    return {"mensaje": "✅ API de Consejo Editorial activa"}
+def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/producto/{asin}")
-def producto(asin: str):
-    resultado = obtener_datos_producto(asin)
-    if resultado:
-        return resultado
-    return {"error": "❌ No se pudo obtener el producto"}
+@app.get("/api/producto/{asin}")
+async def api_producto(asin: str):
+    try:
+        producto = obtener_datos_producto(asin)
+        if not producto or not producto.get("titulo"):
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        return producto
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
