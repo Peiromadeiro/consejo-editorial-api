@@ -3,3 +3,4 @@ uvicorn[standard]
 python-amazon-paapi
 gunicorn
 python-dotenv
+google-generativeai
