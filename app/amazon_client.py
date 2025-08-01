@@ -16,12 +16,12 @@ amazon = AmazonApi(
 
 def safe_display_value(obj):
     """
-    Funcion para obtener el atributo display_value de forma segura,
+    Función para obtener el atributo display_value de forma segura,
     manejando tipos variables y evitando fallos por atributos ausentes.
     """
     if not obj:
         return ""
-    # Si es objeto con atributo display_value
+    # Si tiene .display_value
     if hasattr(obj, "display_value"):
         val = getattr(obj, "display_value")
         if val is None:
@@ -36,10 +36,9 @@ def safe_display_value(obj):
                 if val:
                     valores.append(str(val))
             else:
-                # fallback en caso de otro tipo
                 valores.append(str(o))
         return valores
-    # fallback: devuelve string del objeto
+    # Como fallback devuelve string del objeto
     return str(obj)
 
 def generar_descripcion_periodistica_gemini(datos_producto):
@@ -53,7 +52,7 @@ def generar_descripcion_periodistica_gemini(datos_producto):
         f"VALORACIÓN MEDIA: {datos_producto.get('valoracion', 'sin datos')}/5 basada en {datos_producto.get('n_opiniones', 'varias')} opiniones.\n"
         f"El texto debe ser objetivo, claro y motivar a comprar a través del enlace afiliado."
     )
-    model = genai.GenerativeModel("gemini-1.5-flash")  # O "gemini-2.5-flash" si tienes acceso
+    model = genai.GenerativeModel("gemini-1.5-flash")  # Cambia a otro modelo si quieres
     response = model.generate_content(prompt)
     return response.text.strip()
 
@@ -97,7 +96,7 @@ def obtener_datos_producto(asin: str):
             "contras": [],  # Amazon no ofrece contras explícitos
         }
 
-        # Generar la descripción periodística mediante Gemini
+        # Generar la descripción periodística con Gemini
         descripcion_ia = generar_descripcion_periodistica_gemini(datos)
         datos['descripcion_periodistica'] = descripcion_ia
 
@@ -106,3 +105,4 @@ def obtener_datos_producto(asin: str):
     except Exception as e:
         print(f"[Amazon PAAPI ERROR] ASIN: {asin} - Excepción: {e}")
         return None
+
