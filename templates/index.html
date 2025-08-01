@@ -55,48 +55,63 @@
     <div id="resultado" class="hidden"></div>
   </div>
   <script>
+    // Asociar evento submit para evitar recarga y llamar a la función async
     document.getElementById('asin-form').onsubmit = function(e) {
       e.preventDefault();
       buscarProducto();
     }
+
     async function buscarProducto() {
       const asin = document.getElementById('asin').value.trim();
       if (!asin) return;
-      const resultadoDiv = document.getElementById('resultado');
-      resultadoDiv.innerHTML = `
-  <div class="ficha-card flex-col md:flex-row">
-    <img src="${data.imagen}" alt="${data.titulo}" ... />
-    <div class="flex-1 flex flex-col">
-      <h2 class="text-2xl font-bold mb-3">${data.titulo}</h2>
-      <p class="text-lg mb-5">${data.descripcion_periodistica || ''}</p>
-      <!-- Pros -->
-      <div class="pros-contras-card flex-1">
-        <h3>Pros</h3>
-        <ul>
-          ${(Array.isArray(data.bullets) && data.bullets.length) ? data.bullets.map(p => `<li>${p}</li>`).join('') : '<li>No hay pros disponibles</li>'}
-        </ul>
-      </div>
-      <!-- Contras -->
-      <div class="pros-contras-card flex-1">
-        <h3>Contras</h3>
-        <ul>
-          ${(Array.isArray(data.contras) && data.contras.length) ? data.contras.map(c => `<li>${c}</li>`).join('') : '<li>No hay contras disponibles</li>'}
-        </ul>
-      </div>
-      <div class="mt-5">
-        <span>⭐ ${data.valoracion || '-'} / 5</span>
-        <span>Basado en ${data.n_opiniones || '0'} opiniones</span>
-      </div>
-      <a href="${data.url_producto || '#'}" ...>Comprar en Amazon</a>
-    </div>
-  </div>
-`;
 
+      const resultadoDiv = document.getElementById('resultado');
+      resultadoDiv.innerHTML = 'Cargando...';
+      resultadoDiv.classList.remove('hidden');
+
+      try {
+        const respuesta = await fetch('/api/producto/' + asin);
+        if (!respuesta.ok) {
+          resultadoDiv.innerHTML = '<p class="text-red-600 font-bold">Producto no encontrado o error al buscar.</p>';
+          return;
+        }
+        const data = await respuesta.json();
+
+        resultadoDiv.innerHTML = `
+          <div class="ficha-card flex-col md:flex-row">
+            <img src="${data.imagen}" alt="${data.titulo}" class="w-56 h-56 object-contain rounded border mx-auto mb-6 md:mb-0 md:mr-6" style="background:#F7F7F7" />
+            <div class="flex-1 flex flex-col">
+              <h2 class="text-2xl font-bold mb-3">${data.titulo}</h2>
+              <p class="text-lg mb-5">${data.descripcion_periodistica || ''}</p>
+              <div class="flex gap-4 flex-col md:flex-row">
+                <div class="pros-contras-card flex-1">
+                  <h3 class="font-semibold mb-1 pros-title">✔ Pros</h3>
+                  <ul class="list-disc pl-4">
+                    ${(Array.isArray(data.bullets) && data.bullets.length) ? data.bullets.map(p => `<li>${p}</li>`).join('') : '<li>No hay pros disponibles</li>'}
+                  </ul>
+                </div>
+                <div class="pros-contras-card flex-1">
+                  <h3 class="font-semibold mb-1 contras-title">✗ Contras</h3>
+                  <ul class="list-disc pl-4">
+                    ${(Array.isArray(data.contras) && data.contras.length) ? data.contras.map(c => `<li>${c}</li>`).join('') : '<li>No hay contras disponibles</li>'}
+                  </ul>
+                </div>
+              </div>
+              <div class="mt-5">
+                <span class="text-xl font-bold text-yellow-600">⭐ ${data.valoracion || '-'} / 5</span>
+                <span class="ml-2 text-gray-600">Basado en ${data.n_opiniones || '0'} opiniones</span>
+              </div>
+              <a href="${data.url_producto || '#'}" target="_blank" class="btn-amarillo mt-7 px-8 py-3 w-fit">Comprar en Amazon</a>
+            </div>
+          </div>
+        `;
       } catch (error) {
         resultadoDiv.innerHTML = '<p class="text-red-600 font-bold">Error inesperado.</p>';
+        console.error("Error en buscarProducto:", error);
       }
     }
   </script>
 </body>
 </html>
+
 
