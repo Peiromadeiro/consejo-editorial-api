@@ -3,8 +3,10 @@ from amazon_paapi import AmazonApi
 from app import config
 import google.generativeai as genai
 
-# Configura la API de Gemini con la clave desde variable de entorno
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# Obtienes la API key desde la variable de entorno
+api_key = os.getenv("GOOGLE_API_KEY")
+# Configuras Gemini con la clave
+genai.configure(api_key=api_key)
 
 amazon = AmazonApi(
     config.ACCESS_KEY,
