@@ -30,20 +30,14 @@
       background: #F7CA00;
       color: #232F3E;
     }
-    .pros-contras-card {
-      background: #F8F9FA;
-      border: 1px solid #EFF1F6;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-    .pros-title { color: #107d1f; }
-    .contras-title { color: #a61f1f; }
+    .campo-fila { margin-bottom: 0.5rem; }
+    .campo-label { font-weight:500; color:#232F3E; min-width:105px; display:inline-block;}
+    .campo-valor { color:#444; }
   </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen px-2">
   <div class="max-w-4xl mx-auto py-8">
-    <h1 class="text-center text-4xl font-bold mb-6 text-[#232F3E]">🛒 El Buscador - Fichas Amazon Afiliados</h1>
+    <h1 class="text-center text-4xl font-bold mb-6 text-[#232F3E]">🛒 Buscador Amazon Afiliados</h1>
 
     <form id="asin-form" class="w-full max-w-xl mx-auto bg-white p-6 rounded shadow-md flex gap-4 items-center">
       <input id="asin" name="asin" type="text" placeholder="Introduce el ASIN (por ejemplo B09XBM93XW)" required
@@ -55,7 +49,6 @@
     <div id="resultado" class="hidden"></div>
   </div>
   <script>
-    // Asociar evento submit para evitar recarga y llamar a la función async
     document.getElementById('asin-form').onsubmit = function(e) {
       e.preventDefault();
       buscarProducto();
@@ -76,33 +69,32 @@
           return;
         }
         const data = await respuesta.json();
-        console.log(data);
-        
         resultadoDiv.innerHTML = `
           <div class="ficha-card flex-col md:flex-row">
             <img src="${data.imagen}" alt="${data.titulo}" class="w-56 h-56 object-contain rounded border mx-auto mb-6 md:mb-0 md:mr-6" style="background:#F7F7F7" />
             <div class="flex-1 flex flex-col">
               <h2 class="text-2xl font-bold mb-3">${data.titulo}</h2>
-              <p class="text-lg mb-5">${data.descripcion_periodistica || ''}</p>
-              <div class="flex gap-4 flex-col md:flex-row">
-                <div class="pros-contras-card flex-1">
-                  <h3 class="font-semibold mb-1 pros-title">✔ Pros</h3>
-                  <ul class="list-disc pl-4">
-                    ${(Array.isArray(data.bullets) && data.bullets.length) ? data.bullets.map(p => `<li>${p}</li>`).join('') : '<li>No hay pros disponibles</li>'}
-                  </ul>
-                </div>
-                <div class="pros-contras-card flex-1">
-                  <h3 class="font-semibold mb-1 contras-title">✗ Contras</h3>
-                  <ul class="list-disc pl-4">
-                    ${(Array.isArray(data.contras) && data.contras.length) ? data.contras.map(c => `<li>${c}</li>`).join('') : '<li>No hay contras disponibles</li>'}
-                  </ul>
-                </div>
+              <p class="text-base mb-4 italic">${data.descripcion_periodistica || ''}</p>
+              <div class="mb-3">
+                <div class="campo-fila"><span class="campo-label">Precio:</span> <span class="campo-valor">${data.precio || 'No disponible'}</span></div>
+                <div class="campo-fila"><span class="campo-label">Valoración:</span> <span class="campo-valor">${data.valoracion || '-'} / 5</span></div>
+                <div class="campo-fila"><span class="campo-label">Opiniones:</span> <span class="campo-valor">${data.n_opiniones || '0'}</span></div>
+                <div class="campo-fila"><span class="campo-label">Categoría:</span> <span class="campo-valor">${data.categoria || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">Marca:</span> <span class="campo-valor">${data.marca || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">Fabricante:</span> <span class="campo-valor">${data.fabricante || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">Dimensiones:</span> <span class="campo-valor">${data.dimensiones || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">Peso:</span> <span class="campo-valor">${data.peso || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">Fecha lanzamiento:</span> <span class="campo-valor">${data.fecha_lanzamiento || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">EAN:</span> <span class="campo-valor">${data.ean || ''}</span></div>
+                <div class="campo-fila"><span class="campo-label">UPC:</span> <span class="campo-valor">${data.upc || ''}</span></div>
               </div>
-              <div class="mt-5">
-                <span class="text-xl font-bold text-yellow-600">⭐ ${data.valoracion || '-'} / 5</span>
-                <span class="ml-2 text-gray-600">Basado en ${data.n_opiniones || '0'} opiniones</span>
+              <div class="mb-4">
+                <div class="campo-label">Descripción oficial:</div>
+                <div class="campo-valor">${data.descripcion || ''}</div>
               </div>
-              <a href="${data.url_producto || '#'}" target="_blank" class="btn-amarillo mt-7 px-8 py-3 w-fit">Comprar en Amazon</a>
+              <div>
+                <a href="${data.url_producto || '#'}" target="_blank" class="btn-amarillo px-8 py-3 w-fit">Comprar en Amazon</a>
+              </div>
             </div>
           </div>
         `;
