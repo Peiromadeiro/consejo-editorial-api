@@ -18,7 +18,7 @@ amazon = AmazonApi(
 def generar_descripcion_periodistica_gemini(datos_producto):
     prompt = (
         f"Eres un periodista especializado en análisis de productos electrónicos para afiliación.\n"
-        f"Escribe una descripción periodística, profesional y atractiva, de máximo 120 palabras, "
+        f"Escribe una descripción periodística, profesional y atractiva, de máximo 6 frases, "
         f"sobre este producto de Amazon:\n\n"
         f"TÍTULO: {datos_producto.get('titulo', '')}\n"
         f"MARCA: {datos_producto.get('marca', '')}\n"
@@ -32,18 +32,18 @@ def generar_descripcion_periodistica_gemini(datos_producto):
 
 def obtener_datos_producto(asin: str):
     try:
+        # Tu código actual para consultar a Amazon PAAPI y parsear el resultado...
         result = amazon.get_items(asin)
         item = result[0] if result else None
         if not item:
+            print(f"[Amazon PAAPI] No se encontró el producto para el ASIN {asin}")
             return None
+        # ... resto del código
+        return datos
+    except Exception as e:
+        print(f"[Amazon PAAPI ERROR] ASIN: {asin} - Excepción: {e}")
+        return None
 
-        item_info = item.item_info or {}
-        product_info = getattr(item_info, "product_info", None) or {}
-        offers = item.offers or {}
-        offer_listing = offers.listings[0] if offers.listings else None
-        customer_reviews = item.customer_reviews or {}
-        browse_node_info = item.browse_node_info or {}
-        browse_nodes = browse_node_info.browse_nodes or []
 
         # Construir datos base de Amazon
         datos = {
