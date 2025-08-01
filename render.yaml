@@ -8,3 +8,6 @@ services:
     region: frankfurt
     envVars:
       - fromDotEnv: true
+
+
+
