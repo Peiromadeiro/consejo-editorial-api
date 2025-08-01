@@ -16,10 +16,7 @@ def index(request: Request):
 
 @app.get("/api/producto/{asin}")
 async def api_producto(asin: str):
-    try:
-        producto = obtener_datos_producto(asin)
-        if not producto or not producto.get("titulo"):
-            raise HTTPException(status_code=404, detail="Producto no encontrado")
-        return producto
-    except Exception as e:
+    producto = obtener_datos_producto(asin)
+    if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
