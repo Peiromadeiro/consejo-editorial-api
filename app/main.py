@@ -7,7 +7,7 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
-def index(request: Request):
+async def index(request: Request):
     """
     Ruta que sirve la página principal con el formulario de búsqueda
     """
@@ -22,6 +22,4 @@ async def api_producto(asin: str):
     if not datos:
         # Si no se encontró el producto o hubo error, devolvemos HTTP 404 con detalle
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-
-    # Retorna todo el diccionario con la info enriquecida
     return JSONResponse(content=datos)
