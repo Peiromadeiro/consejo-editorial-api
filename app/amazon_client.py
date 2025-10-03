@@ -51,7 +51,7 @@ def generar_descripcion_periodistica_gemini(datos_producto):
         f"Devuélveme primero la descripción separada por una línea vacía, luego la lista de puntos destacados usando guiones (-) o viñetas.\n"
         f"El texto debe ser objetivo, claro y motivar a comprar a través del enlace afiliado."
     )
-    model = genai.GenerativeModel("gemini-1.5-flash")  # Cambia a otro modelo si quieres y tienes acceso
+    model = genai.GenerativeModel("gemini-2.5-flash-preview-09-2025")  # Cambia a otro modelo si quieres y tienes acceso
     response = model.generate_content(prompt)
     text = response.text.strip()
 
